@@ -5,6 +5,7 @@
   <meta name="viewport" content="initial-scale=1,maximum-scale=1,user-scalable=no">
   <title>Student Teacher Ratio</title>
   <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-geocoder/v5.0.3/mapbox-gl-geocoder.css" type="text/css">
   <link href="https://api.mapbox.com/mapbox-gl-js/v3.11.0/mapbox-gl.css" rel="stylesheet"> 
 </head>
 
@@ -13,10 +14,11 @@
 <div id="map"></div>
 
 <!-- Scripts at the end for faster page loading -->
-<script src="https://api.mapbox.com/mapbox-gl-js/v3.11.0/mapbox-gl.js"></script>  <!-- Mapbox JS -->
-<script src="data.js"></script> <!-- markers -->
-<script src="counties.js"></script> <!-- Geojson -->
-<script src="scripts.js" defer></script>   <!-- Main logic -->
+  <script src="https://api.mapbox.com/mapbox-gl-js/v3.11.0/mapbox-gl.js"></script>
+  <script src="https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-geocoder/v5.0.3/mapbox-gl-geocoder.min.js"></script>
+  <script src="data.js"></script>       <!-- your strLocdata -->
+  <script src="counties.js"></script>   <!-- your countiesGeoJSON -->
+  <script src="scripts.js"></script>    <!-- your main logic -->
 
 </body>
 </html>
