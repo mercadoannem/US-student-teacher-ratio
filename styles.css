@@ -11,6 +11,46 @@ body {
   width: 100%;
 }
 
+#title {
+  position: absolute;
+  top: 10px;
+  left: 0;
+  width: 100%;
+  background-color: rgba(255, 255, 255, 0.5); 
+  border-radius: 0 0 10px 10px;
+  font-size: 24px;
+  z-index: 10;
+  padding: 12px 20px;
+  font-weight: bold;
+  box-sizing: border-box;
+}
+
+#geocoder.geocoder-container {
+  position: absolute;
+  top: 70px; 
+  left: 20px;
+  width: 320px;
+  z-index: 11;
+}
+
+#info-pane {
+  position: absolute;
+  top: 120px; /* just below the geocoder */
+  left: 20px;
+  width: 300px;
+  background: white;
+  padding: 15px;
+  border-radius: 8px;
+  box-shadow: 0 0 5px rgba(0,0,0,0.2);
+  font-size: 14px;
+  z-index: 9;
+}
+
+#info-pane h3 {
+  margin-top: 0;
+  font-size: 16px;
+}
+
 .geocoder-dropdown-item {
   padding: 5px;
 }

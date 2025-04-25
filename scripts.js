@@ -14,7 +14,8 @@ const STRmap = new mapboxgl.Map({
   style: 'mapbox://styles/mapbox/light-v10',
   center: initialView.center,
   zoom: initialView.zoom,
-  bearing: initialView.bearing
+  bearing: initialView.bearing,
+  maxBounds: [[-180, 10], [-60, 72]] // Limit view to US bounding box
 });
 
 // Convert strLocdata to GeoJSON
@@ -37,71 +38,20 @@ const strGeoJSON = {
 // Add geocoder
 const geocoder = new MapboxGeocoder({
   accessToken: mapboxgl.accessToken,
-  render: function (item) {
-    let maki = '';
-    switch (item.id.split('.')[0]) {
-      case 'address':
-        maki = 'building';
-        break;
-      case 'locality':
-      case 'place':
-      case 'neighborhood':
-        maki = 'city';
-        break;
-      default:
-        maki = 'marker';
-    }
-    return `<div class='geocoder-dropdown-item'>
-      <img class='geocoder-dropdown-icon' src='https://unpkg.com/@mapbox/maki@6.1.0/icons/${maki}-15.svg'>
-      <span class='geocoder-dropdown-text'>${item.text}</span>
-    </div>`;
-  },
   mapboxgl: mapboxgl,
-  countries: 'us',      // Limit to U.S.
-  types: 'region', // Place
+  countries: 'us',
+  types: 'region',
+  placeholder: 'Search for a state...',
+  clearOnBlur: true
 });
 
-// Add layers
+// Layers and controls
 STRmap.on('load', () => {
-
-  // Activate geocoder
-  STRmap.addControl(geocoder);
-
-  // Add counties
-  STRmap.addSource('county-boundaries', {
-    type: 'geojson',
-    data: countiesGeoJSON
-  });
-
-  STRmap.addLayer({
-    id: 'county-fill',
-    type: 'fill',
-    source: 'county-boundaries',
-    paint: {
-      'fill-color': '#ADD8E6',
-      'fill-opacity': 0.2
-    }
-  });
-
-  STRmap.addLayer({
-    id: 'county-boundaries-layer',
-    type: 'line',
-    source: 'county-boundaries',
-    paint: {
-      'line-color': '#D3D3D3',
-      'line-width': [
-        'interpolate', ['linear'], ['zoom'],
-        5, 0.5,
-        12, 2.5
-      ]
-    }
-  });
+  // Append geocoder manually
+  document.getElementById('geocoder').appendChild(geocoder.onAdd(STRmap));
 
   // Add STR school circles
-  STRmap.addSource('str-schools', {
-    type: 'geojson',
-    data: strGeoJSON
-  });
+  STRmap.addSource('str-schools', { type: 'geojson', data: strGeoJSON });
 
   STRmap.addLayer({
     id: 'str-schools-layer',
@@ -110,19 +60,47 @@ STRmap.on('load', () => {
     paint: {
       'circle-radius': [
         'interpolate', ['linear'], ['zoom'],
-        5, 2,
-        12, 8
+        5, 2, 12, 8
       ],
       'circle-color': '#007cbf',
-      'circle-opacity': [
-        'interpolate', ['linear'], ['get', 'str'],
-        5, 0.2,
-        25, 1
-      ]
+      'circle-opacity': ['interpolate', ['linear'], ['get', 'str'], 5, 0.2, 25, 1]
     }
   });
 
-  // Hover popup
+  // Add counties (initially hidden)
+  STRmap.addSource('county-boundaries', { type: 'geojson', data: countiesGeoJSON });
+  STRmap.addLayer({
+    id: 'county-fill',
+    type: 'fill',
+    source: 'county-boundaries',
+    layout: { visibility: 'none' },
+    paint: { 'fill-color': '#ADD8E6', 'fill-opacity': 0.2 }
+  });
+  STRmap.addLayer({
+    id: 'county-boundaries-layer',
+    type: 'line',
+    source: 'county-boundaries',
+    layout: { visibility: 'none' },
+    paint: {
+      'line-color': '#D3D3D3',
+      'line-width': ['interpolate', ['linear'], ['zoom'], 5, 0.5, 12, 2.5]
+    }
+  });
+
+  // Highlight selected county
+  STRmap.addSource('selected-county', {
+    type: 'geojson',
+    data: { type: 'FeatureCollection', features: [] }
+  });
+  STRmap.addLayer({
+    id: 'selected-county-highlight',
+    type: 'line',
+    source: 'selected-county',
+    layout: { visibility: 'none' },
+    paint: { 'line-color': '#ff6600', 'line-width': 3 }
+  });
+
+  // Hover effect for STR markers
   let popup;
   STRmap.on('mouseenter', 'str-schools-layer', (e) => {
     const props = e.features[0].properties;
@@ -132,47 +110,60 @@ STRmap.on('load', () => {
       .addTo(STRmap);
     STRmap.getCanvas().style.cursor = 'pointer';
   });
-
   STRmap.on('mouseleave', 'str-schools-layer', () => {
     if (popup) popup.remove();
     STRmap.getCanvas().style.cursor = '';
   });
 
-  // Simple fly to result (no county match yet)
-  geocoder.on('result', (e) => {
-    const bbox = e.result.bbox;
-
-    if (bbox) {
-      STRmap.fitBounds(bbox, {
-        padding: 40,       // Space around the edges
-        duration: 1000     // Smooth transition
-      });
-    } else {
-      // fallback: if bbox is not provided, center the point
-      STRmap.flyTo({
-        center: e.result.center,
-        zoom: 6,
-        speed: 1.2,
-        curve: 1
-      });
-    }
+  // Click on a county
+  STRmap.on('click', 'county-fill', (e) => {
+    const feature = e.features[0];
+    STRmap.getSource('selected-county').setData(feature);
+    const coords = feature.geometry.coordinates[0];
+    const bounds = coords.reduce((b, coord) => b.extend(coord), new mapboxgl.LngLatBounds(coords[0], coords[0]));
+    STRmap.fitBounds(bounds, { padding: 40, duration: 1000 });
   });
 
+  STRmap.on('mouseenter', 'county-fill', () => {
+    STRmap.getCanvas().style.cursor = 'pointer';
+  });
+  STRmap.on('mouseleave', 'county-fill', () => {
+    STRmap.getCanvas().style.cursor = '';
+  });
+
+  // When a state is selected via geocoder
+  geocoder.on('result', (e) => {
+    if (e.result.bbox) {
+      STRmap.fitBounds(e.result.bbox, { padding: 40, duration: 1000 });
+    } else {
+      STRmap.flyTo({ center: e.result.center, zoom: 6, speed: 1.2, curve: 1 });
+    }
+
+    // Show county layers
+    STRmap.setLayoutProperty('county-fill', 'visibility', 'visible');
+    STRmap.setLayoutProperty('county-boundaries-layer', 'visibility', 'visible');
+    STRmap.setLayoutProperty('selected-county-highlight', 'visibility', 'visible');
+  });
+
+  // Reset map to initial view on background click
   STRmap.on('click', (e) => {
-    // Check if the click was NOT on the STR circles
     const features = STRmap.queryRenderedFeatures(e.point, {
-      layers: ['str-schools-layer']
+      layers: ['str-schools-layer', 'county-fill']
     });
 
     if (!features.length) {
-      STRmap.flyTo({
-        center: initialView.center,
-        zoom: initialView.zoom,
-        bearing: initialView.bearing,
-        speed: 1.2,
-        curve: 1
-      });
+      STRmap.flyTo({ center: initialView.center, zoom: initialView.zoom, bearing: initialView.bearing });
+
+      // Hide counties
+      STRmap.setLayoutProperty('county-fill', 'visibility', 'none');
+      STRmap.setLayoutProperty('county-boundaries-layer', 'visibility', 'none');
+      STRmap.setLayoutProperty('selected-county-highlight', 'visibility', 'none');
+
+      // Clear county selection
+      STRmap.getSource('selected-county').setData({ type: 'FeatureCollection', features: [] });
+
+      // Reset geocoder input
+      document.querySelector('.mapboxgl-ctrl-geocoder input').value = '';
     }
   });
-
 });
