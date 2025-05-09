@@ -1,11 +1,10 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="initial-scale=1,maximum-scale=1,user-scalable=no">
   <title>Student Teacher Ratio</title>
   <link rel="stylesheet" href="styles.css">
-  <link rel="stylesheet" href="https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-geocoder/v5.0.3/mapbox-gl-geocoder.css" type="text/css">
   <link href="https://api.mapbox.com/mapbox-gl-js/v3.11.0/mapbox-gl.css" rel="stylesheet"> 
 </head>
 
@@ -13,24 +12,25 @@
 
 <div id="title">👩🏻‍🏫 Student Teacher Ratio in United States</div>
 <div id="geocoder" class="geocoder-container"></div>
+
 <div id="info-pane">
   <h3>About This Map</h3>
-  <p>This map displays public school <b>student-teacher ratios across the U.S. by county.</b></p>
-  <p><u><strong>Instructions:</strong></u><br>
-    1. Use the search box to zoom into a specific state or region.<br>
+  <p>This map displays public school <strong>student-teacher ratios across the U.S. by county.</strong></p>
+  <p><strong>Instructions:</strong><br>
+    1. Click on the state to view the counties data.<br>
     2. Click on a county within the map to select it.<br>
-    3. The county outlines highlight selected regions. Hover over circles to view details about specific schools.</p>    
+    3. The county outlines highlight selected regions. Hover over circles to view details about specific schools.
+  </p>    
 </div>
 
-
-<div id="map"></div>
+<div id="map" aria-label="Interactive map showing student-teacher ratios"></div>
 
 <!-- Scripts at the end for faster page loading -->
-  <script src="https://api.mapbox.com/mapbox-gl-js/v3.11.0/mapbox-gl.js"></script>
-  <script src="https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-geocoder/v5.0.3/mapbox-gl-geocoder.min.js"></script>
-  <script src="data.js"></script>       <!-- your strLocdata -->
-  <script src="counties.js"></script>   <!-- your countiesGeoJSON -->
-  <script src="scripts.js"></script>    <!-- your main logic -->
+<script src="https://api.mapbox.com/mapbox-gl-js/v3.11.0/mapbox-gl.js"></script>
+<script src="school_data.js"></script>
+<script src="counties.js"></script>
+<script src="states.js"></script>
+<script src="scripts.js"></script>
 
 </body>
 </html>
