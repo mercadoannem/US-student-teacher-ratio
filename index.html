@@ -13,23 +13,53 @@
 <div id="title">Student Teacher Ratio in United States</div>
 
 <div id="container">
-  <div id="info-pane">
-    <h3>About This Map</h3>
-    <p>This map displays public school <strong>student-teacher ratios across the U.S. by county.</strong></p>
-    <p><strong>Instructions:</strong><br>
-      1. Click on the state to view the counties data.<br>
-      2. Click on a county within the map to select it.<br>
-      3. The county outlines highlight selected regions. Hover over circles to view details about specific schools.
-    </p>    
+  <div id="left-pane">
+    <div class="panel" id="info-pane">
+      <h3>About This Map</h3>
+      <p>You are looking at the <strong><i>public school student-teacher ratios across the U.S. by county.</i></strong> </p>
+        <p></p>This is part of a climate migration project analyzing the equity of education in each county and state.</p>
+      <p><strong>Instructions:</strong><br>
+        1. Click on the state to view state summary and start seeing school data.<br>
+        2. Click on a county to view county summary.<br>
+        3. Hover over markers to view individual school info.
+      </p>
+    </div>
+
+    <div class="panel" id="state-stats-pane">
+      <h3>State Summary</h3>
+      <p><strong>State:</strong> <span id="state-name">—</span></p>
+      <p><strong>Avg. STR:</strong> <span id="state-avg-str">—</span></p>
+      <p><strong>Schools:</strong> <span id="state-num-schools">—</span></p>
+    </div>
+
+    <div class="panel" id="county-stats-pane">
+      <h3>County Summary</h3>
+      <p><strong>County:</strong> <span id="county-name">—</span></p>
+      <p><strong>Avg. STR:</strong> <span id="avg-str">—</span></p>
+      <p><strong>Schools:</strong> <span id="num-schools">—</span></p>
+    </div>
+
+    <div class="panel" id="reset-panel">
+      <button id="reset-view-btn">Reset View</button>
+    </div>
+
   </div>
+
+
   <div id="map"></div>
 </div>
+
+
+
+  <div id="map"></div>
+</div>
+
+
 
 <div id="map" aria-label="Interactive map showing student-teacher ratios"></div>
 
 <!-- Scripts at the end for faster page loading -->
 <script src="https://api.mapbox.com/mapbox-gl-js/v3.11.0/mapbox-gl.js"></script>
-<script src="school_data.js"></script>
 <script src="counties.js"></script>
 <script src="states.js"></script>
 <script src="scripts.js"></script>
