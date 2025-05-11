@@ -1,70 +1,78 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="initial-scale=1,maximum-scale=1,user-scalable=no">
   <title>Student Teacher Ratio</title>
   <link rel="stylesheet" href="styles.css">
-  <link href="https://api.mapbox.com/mapbox-gl-js/v3.11.0/mapbox-gl.css" rel="stylesheet"> 
+  <link href="https://api.mapbox.com/mapbox-gl-js/v3.11.0/mapbox-gl.css" rel="stylesheet">
 </head>
 
 <body>
 
-<!-- <div id="title">Student Teacher Ratio in United States</div> -->
+  <!-- <div id="title">Student Teacher Ratio in United States</div> -->
 
-<div id="container">
-  <div id="left-pane">
-    <div class="panel" id="info-pane">
-      <h1>Student Teacher Ratio in United States</h1>
-      <h3>About This Map</h3>
-      <p>You are looking at the <strong><i>public school student-teacher ratios across the U.S. by state and county.</i></strong> </p>
-        <p></p>This is part of a climate migration project analyzing the <i>equity</i> of education in each county and state.</p>
-      <p><strong>Instructions:</strong><br>
-        1. Click on the state to view state summary and start seeing school data.<br>
-        2. Click on a county to view county summary.<br>
-        3. Hover over markers to view individual school info.<br>
-        4. Click 'Reset View' or outside the state to go back to initial view.
-      </p>
+  <div id="container">
+    <div id="left-pane">
+      <div class="panel" id="info-pane">
+        <h1>Student Teacher Ratio in United States</h1>
+        <h3>About This Map</h3>
+        <p>You are looking at the <strong><i>public school student-teacher ratios across the U.S. by state and
+              county.</i></strong> </p>
+        <p></p>This is part of a climate migration project analyzing the <i>equity</i> of education in each county and
+        state.</p>
+        <p><strong>Instructions:</strong><br>
+          1. Click on the state to view state summary and start seeing school data.<br>
+          2. Click on a county to view county summary.<br>
+          3. Hover over markers to view individual school info.<br>
+          4. Click 'Reset View' or outside the state to go back to initial view.
+        </p>
+      </div>
+      <!-- Toggle button -->
+      <div style="text-align:center; margin-bottom: 10px; margin-top: 0px;">
+        <button id="toggle-instructions-btn" class="toggle-btn">Hide Instructions ▲</button>
+      </div>
+
+      <div class="panel" id="state-stats-pane">
+        <h3>State Summary</h3>
+        <p><strong>State:</strong> <span id="state-name">—</span></p>
+        <p><strong>Avg. STR:</strong> <span id="state-avg-str">—</span></p>
+        <p><strong>Schools:</strong> <span id="state-num-schools">—</span></p>
+      </div>
+
+      <div class="panel" id="county-stats-pane">
+        <h3>County Summary</h3>
+        <p><strong>County:</strong> <span id="county-name">—</span></p>
+        <p><strong>Avg. STR:</strong> <span id="county-avg-str">—</span></p>
+        <p><strong>Schools:</strong> <span id="county-num-schools">—</span></p>
+      </div>
+
+      <div style="text-align:center; margin-bottom: 10px; margin-top: 0px;">
+        <button id="reset-view-btn" class="action-btn">Reset View</button>
+      </div>
+
     </div>
 
-    <div class="panel" id="state-stats-pane">
-      <h3>State Summary</h3>
-      <p><strong>State:</strong> <span id="state-name">—</span></p>
-      <p><strong>Avg. STR:</strong> <span id="state-avg-str">—</span></p>
-      <p><strong>Schools:</strong> <span id="state-num-schools">—</span></p>
-    </div>
 
-    <div class="panel" id="county-stats-pane">
-      <h3>County Summary</h3>
-      <p><strong>County:</strong> <span id="county-name">—</span></p>
-      <p><strong>Avg. STR:</strong> <span id="avg-str">—</span></p>
-      <p><strong>Schools:</strong> <span id="num-schools">—</span></p>
-    </div>
-
-    <div class="panel" id="reset-panel">
-      <button id="reset-view-btn">Reset View</button>
-    </div>
-
+    <div id="map"></div>
   </div>
 
 
-  <div id="map"></div>
-</div>
-
-
 
   <div id="map"></div>
-</div>
+  </div>
 
 
 
-<div id="map" aria-label="Interactive map showing student-teacher ratios"></div>
+  <div id="map" aria-label="Interactive map showing student-teacher ratios"></div>
 
-<!-- Scripts at the end for faster page loading -->
-<script src="https://api.mapbox.com/mapbox-gl-js/v3.11.0/mapbox-gl.js"></script>
-<script src="counties.js"></script>
-<script src="states.js"></script>
-<script src="scripts.js"></script>
+  <!-- Scripts at the end for faster page loading -->
+  <script src="https://api.mapbox.com/mapbox-gl-js/v3.11.0/mapbox-gl.js"></script>
+  <script src="counties.js"></script>
+  <script src="states.js"></script>
+  <script src="scripts.js"></script>
 
 </body>
+
 </html>

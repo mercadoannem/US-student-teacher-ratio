@@ -35,10 +35,38 @@ html, body {
   box-shadow: 0 2px 6px rgba(0,0,0,0.1);
 }
 
+/* Base highlighted panel style */
 .panel.highlighted {
-  border: 2px solid #5E57FF;
-  box-shadow: 0 0 10px rgba(94, 87, 255, 0.4);
-  transition: box-shadow 0.3s ease, border 0.3s ease;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+  border: 2px solid #444;
+  background-color: #fefefe;
+}
+
+
+/* Specific colors */
+#state-stats-pane.highlighted {
+  border-color: #F23CA6;
+  border-width: 3px;
+}
+
+#county-stats-pane.highlighted {
+  border-color: #FF9535;
+  border-width: 3px;
+}
+
+#info-pane {
+  transition: max-height 0.3s ease, opacity 0.3s ease;
+}
+
+#info-pane.hidden {
+  max-height: 0;
+  opacity: 0;
+  padding: 0;
+  margin: 0;
+}
+
+.hidden {
+  display: none;
 }
 
 #info-pane h1 {
@@ -103,9 +131,35 @@ html, body {
 
 #reset-view-btn {
   padding: 6px 12px;
-  border-radius: 6px;
-  background-color: #e2e2e2;
-  border: 1px solid #ccc;
+  border-radius: 3px;
+  background-color: grey;
+  color: white;
   cursor: pointer;
-  font-weight: bold;
+  font-family: 'Georgia';
+
 }
+
+.toggle-btn {
+  background-color: gray;
+  color: white;
+  font-family: 'Georgia';
+  border: none;
+  padding: 10px 16px;
+  font-size: 14px;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+  margin-top: 0px;
+}
+
+.action-btn {
+  background-color: gray;
+  color: white;
+  border: none;
+  padding: 10px 16px;
+  font-size: 14px;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+

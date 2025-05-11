@@ -26,6 +26,11 @@ function resetMapView() {
     bearing: initialView.bearing
   });
 
+  document.getElementById('info-pane')?.classList.remove('hidden');
+  document.getElementById('toggle-instructions-btn').textContent = 'Hide Instructions';
+
+
+
   // Restore all layer visibility and data sources
   STRmap.setLayoutProperty('state-fill', 'visibility', 'visible');
   STRmap.setLayoutProperty('state-boundaries-outline', 'visibility', 'visible');
@@ -119,10 +124,14 @@ function updatePanel(type, { name, avgStr, numSchools }) {
   document.getElementById(`${type}-avg-str`).textContent = avgStr;
   document.getElementById(`${type}-num-schools`).textContent = numSchools;
 
-  // if (pane) {
-  //   pane.classList.toggle('highlighted', shouldHighlight);
-  // }
+  const pane = document.getElementById(`${type}-stats-pane`);
+  const hasData = name !== '—' && name !== 'No data available';
+
+  if (pane) {
+    pane.classList.toggle('highlighted', hasData);
+  }
 }
+
 
 // Update county scores
 function updateCountySnapshot(countyName) {
@@ -136,7 +145,7 @@ function updateCountySnapshot(countyName) {
   });
 
   const totalSTR = countySchools.reduce((sum, f) => sum + parseFloat(f.properties.str || 0), 0);
-  const avgSTR = countySchools.length > 0 ? (totalSTR / countySchools.length).toFixed(1) : 'No data available';  
+  const avgSTR = countySchools.length > 0 ? (totalSTR / countySchools.length).toFixed(1) : 'No data available';
 
   // Update UI
   document.getElementById('county-name').textContent = countyName.replace(/\b\w/g, c => c.toUpperCase());
@@ -314,7 +323,7 @@ STRmap.on('load', () => {
   STRmap.on('click', 'county-fill', (e) => {
     if (e.originalEvent) e.originalEvent.stopPropagation();
     const feature = e.features[0];
-  
+
     // Try to extract a usable county name
     let selectedCountyName = '';
     try {
@@ -328,29 +337,29 @@ STRmap.on('load', () => {
       console.warn("Falling back to basic county name parsing:", err);
       selectedCountyName = feature.properties.name || feature.properties.NAME || '';
     }
-  
+
     // Normalize names for comparison
     const targetName = selectedCountyName.toLowerCase().replace(" county", "").trim();
     const allSchools = STRmap.querySourceFeatures('str-schools');
-  
+
     const countySchools = allSchools.filter(f => {
       const schoolCounty = (f.properties.county || '').toLowerCase().replace(" county", "").trim();
       return schoolCounty === targetName;
     });
-  
+
     // Highlight selected county
     STRmap.getSource('selected-county').setData({
       type: 'FeatureCollection',
       features: [feature]
     });
     STRmap.setLayoutProperty('selected-county-highlight', 'visibility', 'visible');
-  
+
     const featureBounds = getFeatureBounds(feature);
     if (featureBounds) STRmap.fitBounds(featureBounds, { padding: 40, duration: 1000 });
-  
+
     // Format name for UI
     const formattedName = selectedCountyName.replace(/\b\w/g, c => c.toUpperCase());
-  
+
     // Update UI
     if (countySchools.length === 0) {
       document.getElementById('county-name').textContent = formattedName;
@@ -358,15 +367,17 @@ STRmap.on('load', () => {
       document.getElementById('num-schools').textContent = 'No data available';
       return;
     }
-  
+
     const totalSTR = countySchools.reduce((sum, f) => sum + parseFloat(f.properties.str || 0), 0);
     const avgSTR = (totalSTR / countySchools.length).toFixed(1);
-  
-    document.getElementById('county-name').textContent = formattedName;
-    document.getElementById('avg-str').textContent = avgSTR;
-    document.getElementById('num-schools').textContent = countySchools.length;
+
+    updatePanel('county', {
+      name: formattedName,
+      avgStr: avgSTR,
+      numSchools: countySchools.length
+    });
   });
-  
+
 
 
   STRmap.on('mouseenter', 'county-fill', () => {
@@ -397,7 +408,7 @@ STRmap.on('load', () => {
       features: []
     });
     STRmap.setLayoutProperty('selected-county-highlight', 'visibility', 'none');
-    
+
 
     // Update selected state
     STRmap.getSource('selected-state').setData({
@@ -428,9 +439,11 @@ STRmap.on('load', () => {
     const stateTotalSTR = stateSchools.reduce((sum, f) => sum + parseFloat(f.properties.str || 0), 0);
     const stateAvgSTR = (stateSchools.length > 0) ? (stateTotalSTR / stateSchools.length).toFixed(1) : '—';
 
-    document.getElementById('state-name').textContent = rawStateName;
-    document.getElementById('state-avg-str').textContent = stateAvgSTR;
-    document.getElementById('state-num-schools').textContent = stateSchools.length;
+    updatePanel('state', {
+      name: rawStateName,
+      avgStr: stateAvgSTR,
+      numSchools: stateSchools.length
+    });
 
     STRmap.getSource('county-boundaries').setData(filteredCounties);
     STRmap.setLayoutProperty('county-fill', 'visibility', 'visible');
@@ -462,7 +475,7 @@ STRmap.on('load', () => {
       STRmap.setLayoutProperty('county-boundaries-layer', 'visibility', 'none');
       STRmap.setLayoutProperty('selected-county-highlight', 'visibility', 'none');
       STRmap.setLayoutProperty('selected-state-highlight', 'visibility', 'none');
-      
+
 
       // Clear selections
       STRmap.getSource('selected-county').setData({
@@ -489,7 +502,7 @@ STRmap.on('load', () => {
 
       // Remove popup if present
       if (popup) popup.remove();
-      
+
     }
   });
 });
@@ -553,3 +566,12 @@ STRmap.on('mouseleave', 'str-schools-layer', () => {
   if (popup) popup.remove();
   STRmap.getCanvas().style.cursor = '';
 });
+
+const toggleBtn = document.getElementById('toggle-instructions-btn');
+const infoPane = document.getElementById('info-pane');
+
+toggleBtn.addEventListener('click', () => {
+  const isHidden = infoPane.classList.toggle('hidden');
+  toggleBtn.textContent = isHidden ? 'Show Instructions ▼' : 'Hide Instructions ▲';
+});
+
