@@ -125,9 +125,6 @@ function updatePanel(type, { name, avgStr, numSchools }) {
 
 }
 
-
-
-
 // Update county scores
 function updateCountySnapshot(countyName) {
   if (!countyName) {
@@ -292,8 +289,8 @@ STRmap.on('load', () => {
         'interpolate',
         ['linear'],
         ['zoom'],
-        4, 2,   // At zoom level 4, radius is 2
-        12, 8   // At zoom level 12, radius is 8
+        4, 1.5,   // smaller at low zoom
+        12, 4     // smaller at high zoom
       ],
       'circle-color': '#5E57FF',
       'circle-stroke-width': 1,
