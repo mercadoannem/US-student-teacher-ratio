@@ -119,10 +119,9 @@ function updatePanel(type, { name, avgStr, numSchools }) {
   document.getElementById(`${type}-avg-str`).textContent = avgStr;
   document.getElementById(`${type}-num-schools`).textContent = numSchools;
 
-  if (pane) {
-    pane.classList.toggle('highlighted', shouldHighlight);
-  }
-
+  // if (pane) {
+  //   pane.classList.toggle('highlighted', shouldHighlight);
+  // }
 }
 
 // Update county scores
@@ -398,6 +397,7 @@ STRmap.on('load', () => {
       features: []
     });
     STRmap.setLayoutProperty('selected-county-highlight', 'visibility', 'none');
+    
 
     // Update selected state
     STRmap.getSource('selected-state').setData({
@@ -425,7 +425,6 @@ STRmap.on('load', () => {
     }
 
     const stateSchools = STRmap.querySourceFeatures('str-schools');
-
     const stateTotalSTR = stateSchools.reduce((sum, f) => sum + parseFloat(f.properties.str || 0), 0);
     const stateAvgSTR = (stateSchools.length > 0) ? (stateTotalSTR / stateSchools.length).toFixed(1) : '—';
 
@@ -438,7 +437,7 @@ STRmap.on('load', () => {
     STRmap.setLayoutProperty('county-boundaries-layer', 'visibility', 'visible');
 
     STRmap.setLayoutProperty('state-fill', 'visibility', 'none');
-    STRmap.setLayoutProperty('state-boundaries-outline', 'visibility', 'visible');
+    STRmap.setLayoutProperty('state-boundaries-outline', 'visibility', 'none');
   });
 
   STRmap.on('mouseenter', 'state-fill', () => {
@@ -463,6 +462,7 @@ STRmap.on('load', () => {
       STRmap.setLayoutProperty('county-boundaries-layer', 'visibility', 'none');
       STRmap.setLayoutProperty('selected-county-highlight', 'visibility', 'none');
       STRmap.setLayoutProperty('selected-state-highlight', 'visibility', 'none');
+      
 
       // Clear selections
       STRmap.getSource('selected-county').setData({
