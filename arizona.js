@@ -1,0 +1,1 @@
+var strData_arizona = {"type": "FeatureCollection", "features": [{"type": "Feature", "properties": {"school": "Navajo Mountain High", "county": "San Juan County", "str": 5.99}, "geometry": {"type": "Point", "coordinates": [-110.779917, 37.05971]}}]};

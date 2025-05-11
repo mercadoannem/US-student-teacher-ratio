@@ -18,25 +18,35 @@ const STRmap = new mapboxgl.Map({
   maxBounds: [[-180, 10], [-60, 72]]
 });
 
-// Convert strLocdata to GeoJSON with STR validation
-const strGeoJSON = {
-  type: "FeatureCollection",
-  features: strLocdata
-    .filter(record => !isNaN(parseFloat(record.STR)))
-    .map(record => ({
-      type: "Feature",
-      properties: {
-        school: record["School Name"],
-        county: record["County Name"],
-        str: parseFloat(record.STR)
-      },
-      geometry: {
-        type: "Point",
-        coordinates: [record.X, record.Y]
-      }
-    }))
-};
+// Dynamic State STR Data Loader
+function loadSTRDataForStateByFullName(stateName) {
+  const stateId = stateName.toLowerCase().replace(/ /g, '_');
+  const scriptId = `str-script-${stateId}`;
 
+  if (document.getElementById(scriptId)) {
+    useLoadedStateData(stateId);
+    return;
+  }
+
+  const script = document.createElement('script');
+  script.src = `${stateId}.js`;
+  script.id = scriptId;
+  script.onload = () => useLoadedStateData(stateId);
+  script.onerror = () => console.error(`Failed to load STR data for: ${stateId}`);
+  document.body.appendChild(script);
+}
+
+// Apply Loaded STR Data to Map
+function useLoadedStateData(stateId) {
+  const geojsonVar = window[`strData_${stateId}`];
+  if (geojsonVar && STRmap.getSource('str-schools')) {
+    STRmap.getSource('str-schools').setData(geojsonVar);
+  } else {
+    console.warn(`No school data loaded for ${stateId}`);
+  }
+}
+
+// Calculate Feature Bounding Box
 function getFeatureBounds(feature) {
   try {
     if (feature.geometry.type === 'MultiPolygon') {
@@ -77,32 +87,32 @@ STRmap.on('load', () => {
   }
 
   // State boundaries source
-  STRmap.addSource('state-boundaries', { 
-    type: 'geojson', 
-    data: statesGeoJSON 
+  STRmap.addSource('state-boundaries', {
+    type: 'geojson',
+    data: statesGeoJSON
   });
-  
+
   // County boundaries source
-  STRmap.addSource('county-boundaries', { 
-    type: 'geojson', 
-    data: countiesGeoJSON 
+  STRmap.addSource('county-boundaries', {
+    type: 'geojson',
+    data: countiesGeoJSON
   });
-  
-  // Schools data source
-  STRmap.addSource('str-schools', { 
-    type: 'geojson', 
-    data: strGeoJSON 
-  });
-  
+
   // Selected state/county sources
   STRmap.addSource('selected-county', {
     type: 'geojson',
     data: { type: 'FeatureCollection', features: [] }
   });
-  
+
   STRmap.addSource('selected-state', {
     type: 'geojson',
     data: { type: 'FeatureCollection', features: [] }
+  });
+
+  // STR data
+  STRmap.addSource('str-schools', {
+    type: 'geojson',
+    data: { type: 'FeatureCollection', features: [] } // initially empty
   });
 
   // Base layers (state fill)
@@ -122,9 +132,9 @@ STRmap.on('load', () => {
     type: 'fill',
     source: 'county-boundaries',
     layout: { visibility: 'none' },
-    paint: { 
-      'fill-color': '#FF9535', 
-      'fill-opacity': 0.5 
+    paint: {
+      'fill-color': '#FF9535',
+      'fill-opacity': 0.5
     }
   });
 
@@ -170,15 +180,22 @@ STRmap.on('load', () => {
     paint: { 'line-color': '#FF9535', 'line-width': 3, 'line-opacity': 1 }
   });
 
-  // Points (schools) should be on top
   STRmap.addLayer({
     id: 'str-schools-layer',
     type: 'circle',
     source: 'str-schools',
     paint: {
-      'circle-radius': ['interpolate', ['linear'], ['zoom'], 5, 2, 12, 8],
-      'circle-color': '#007cbf',
-      'circle-opacity': ['interpolate', ['linear'], ['get', 'str'], 5, 0.2, 25, 1]
+      'circle-radius': [
+        'interpolate',
+        ['linear'],
+        ['zoom'],
+        4, 2,   // At zoom level 4, radius is 2
+        12, 8   // At zoom level 12, radius is 8
+      ],
+      'circle-color': '#5E57FF',
+      'circle-stroke-width': 1,
+      'circle-stroke-color': '#ffffff',
+      'circle-opacity': 0.8
     }
   });
 
@@ -195,34 +212,19 @@ STRmap.on('load', () => {
     console.error("Error calculating state bounds:", error);
   }
 
-  let popup;
-  STRmap.on('mouseenter', 'str-schools-layer', (e) => {
-    const props = e.features[0].properties;
-    popup = new mapboxgl.Popup({ closeButton: false, closeOnClick: false })
-      .setLngLat(e.lngLat)
-      .setHTML(`<strong>${props.school}</strong><br>County: ${props.county}<br>STR: ${props.str}`)
-      .addTo(STRmap);
-    STRmap.getCanvas().style.cursor = 'pointer';
-  });
-
-  STRmap.on('mouseleave', 'str-schools-layer', () => {
-    if (popup) popup.remove();
-    STRmap.getCanvas().style.cursor = '';
-  });
-
   STRmap.on('click', 'county-fill', (e) => {
     if (e.originalEvent) e.originalEvent.stopPropagation();
     const feature = e.features[0];
-    
+
     // Update selected county data
     STRmap.getSource('selected-county').setData({
       type: 'FeatureCollection',
       features: [feature]
     });
-    
+
     // Show highlight
     STRmap.setLayoutProperty('selected-county-highlight', 'visibility', 'visible');
-    
+
     // Fit to bounds
     const featureBounds = getFeatureBounds(feature);
     if (featureBounds) STRmap.fitBounds(featureBounds, { padding: 40, duration: 1000 });
@@ -239,24 +241,6 @@ STRmap.on('load', () => {
   STRmap.on('click', 'state-fill', (e) => {
     if (e.originalEvent) e.originalEvent.stopPropagation();
     const feature = e.features[0];
-    
-    // Clear any selected county
-    STRmap.getSource('selected-county').setData({ 
-      type: 'FeatureCollection', 
-      features: [] 
-    });
-    STRmap.setLayoutProperty('selected-county-highlight', 'visibility', 'none');
-    
-    // Update selected state
-    STRmap.getSource('selected-state').setData({
-      type: 'FeatureCollection',
-      features: [feature]
-    });
-    STRmap.setLayoutProperty('selected-state-highlight', 'visibility', 'visible');
-    
-    // Fit to bounds
-    const featureBounds = getFeatureBounds(feature);
-    if (featureBounds) STRmap.fitBounds(featureBounds, { padding: 40, duration: 1000 });
 
     const stateProps = feature.properties;
     const rawStateName = stateProps.name || stateProps.NAME || stateProps.STATE_NAME;
@@ -264,7 +248,27 @@ STRmap.on('load', () => {
       console.error("Could not determine state name from properties");
       return;
     }
-    const stateName = rawStateName.toLowerCase();
+
+    const stateName = rawStateName.toLowerCase();  // ✅ properly defined
+    loadSTRDataForStateByFullName(rawStateName);   // ✅ dynamic loading
+
+    // Clear any selected county
+    STRmap.getSource('selected-county').setData({
+      type: 'FeatureCollection',
+      features: []
+    });
+    STRmap.setLayoutProperty('selected-county-highlight', 'visibility', 'none');
+
+    // Update selected state
+    STRmap.getSource('selected-state').setData({
+      type: 'FeatureCollection',
+      features: [feature]
+    });
+    STRmap.setLayoutProperty('selected-state-highlight', 'visibility', 'visible');
+
+    // Fit to bounds
+    const featureBounds = getFeatureBounds(feature);
+    if (featureBounds) STRmap.fitBounds(featureBounds, { padding: 40, duration: 1000 });
 
     // Filter counties for this state
     const filteredCounties = {
@@ -280,17 +284,14 @@ STRmap.on('load', () => {
       );
     }
 
-    // Update county boundaries with filtered data
     STRmap.getSource('county-boundaries').setData(filteredCounties);
-    
-    // Show county layers while keeping state outline visible 
     STRmap.setLayoutProperty('county-fill', 'visibility', 'visible');
     STRmap.setLayoutProperty('county-boundaries-layer', 'visibility', 'visible');
-    
-    // We want to keep the state outline visible but hide the fill
+
     STRmap.setLayoutProperty('state-fill', 'visibility', 'none');
     STRmap.setLayoutProperty('state-boundaries-outline', 'visibility', 'visible');
   });
+
 
   STRmap.on('mouseenter', 'state-fill', () => {
     STRmap.getCanvas().style.cursor = 'pointer';
@@ -302,42 +303,57 @@ STRmap.on('load', () => {
 
   STRmap.on('click', (e) => {
     const features = STRmap.queryRenderedFeatures(e.point, {
-      layers: ['str-schools-layer', 'county-fill', 'state-fill']
+      layers: ['county-fill', 'state-fill']
     });
-    
+
     if (!features.length) {
       // Reset to initial view
-      STRmap.flyTo({ 
-        center: initialView.center, 
-        zoom: initialView.zoom, 
-        bearing: initialView.bearing 
+      STRmap.flyTo({
+        center: initialView.center,
+        zoom: initialView.zoom,
+        bearing: initialView.bearing
       });
-      
+
       // Reset all layers
       STRmap.setLayoutProperty('county-fill', 'visibility', 'none');
       STRmap.setLayoutProperty('county-boundaries-layer', 'visibility', 'none');
       STRmap.setLayoutProperty('selected-county-highlight', 'visibility', 'none');
       STRmap.setLayoutProperty('selected-state-highlight', 'visibility', 'none');
-      
+
       // Clear selections
-      STRmap.getSource('selected-county').setData({ 
-        type: 'FeatureCollection', 
-        features: [] 
+      STRmap.getSource('selected-county').setData({
+        type: 'FeatureCollection',
+        features: []
       });
-      STRmap.getSource('selected-state').setData({ 
-        type: 'FeatureCollection', 
-        features: [] 
+      STRmap.getSource('selected-state').setData({
+        type: 'FeatureCollection',
+        features: []
       });
-      
+
       // Reset county data
       STRmap.getSource('county-boundaries').setData(countiesGeoJSON);
 
       // Show state layers again
       STRmap.setLayoutProperty('state-fill', 'visibility', 'visible');
       STRmap.setLayoutProperty('state-boundaries-outline', 'visibility', 'visible');
-      
+
       // Remove popup if present
       if (popup) popup.remove();
     }
   });
+});
+
+let popup;
+STRmap.on('mouseenter', 'str-schools-layer', (e) => {
+  const props = e.features[0].properties;
+  popup = new mapboxgl.Popup({ closeButton: false, closeOnClick: false })
+    .setLngLat(e.lngLat)
+    .setHTML(`<strong>${props.school}</strong><br>STR: ${props.str}`)
+    .addTo(STRmap);
+  STRmap.getCanvas().style.cursor = 'pointer';
+});
+
+STRmap.on('mouseleave', 'str-schools-layer', () => {
+  if (popup) popup.remove();
+  STRmap.getCanvas().style.cursor = '';
 });
