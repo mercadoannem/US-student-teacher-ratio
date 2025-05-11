@@ -1,7 +1,7 @@
 html, body {
   margin: 0;
   padding: 0;
-  font-family: 'Alegreya', serif;
+  font-family: 'Georgia';
   height: 100%;
 }
 
@@ -10,27 +10,41 @@ html, body {
   height: 100vh;
   width: 100vw;
   font-family: 'Alegreya', serif;
+  background-color: black;
 }
 
 #left-pane {
-  width: 280px;
+  width: 300px;
   display: flex;
   flex-direction: column;
-  background: #f9f9f9;
+  background: black;
   border-right: 1px solid #ccc;
-  padding: 16px;
-  gap: 16px;
-  box-shadow: 0 0 5px rgba(0,0,0,0.1);
+  padding: 12px;
+  gap: 12px;
   overflow-y: auto;
   z-index: 2;
 }
 
 .panel {
-  padding: 12px;
-  margin: 10px;
+  padding: 10px;
+  margin-bottom: 10px;
   background: #ffffff;
   border: 1px solid #ddd;
-  border-radius: 6px;
+  border-radius: 10px;
+  gap: 10px;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+}
+
+.panel.highlighted {
+  border: 2px solid #5E57FF;
+  box-shadow: 0 0 10px rgba(94, 87, 255, 0.4);
+  transition: box-shadow 0.3s ease, border 0.3s ease;
+}
+
+#info-pane h1 {
+  text-align: center;
+  margin-top: 16px;
+  margin-bottom: 16px;
 }
 
 #info-pane h3 {
@@ -80,4 +94,18 @@ html, body {
 .layer-item label {
   margin-left: 5px;
   cursor: pointer;
+}
+
+#reset-panel {
+  text-align: center;
+  margin-top: 10px;
+}
+
+#reset-view-btn {
+  padding: 6px 12px;
+  border-radius: 6px;
+  background-color: #e2e2e2;
+  border: 1px solid #ccc;
+  cursor: pointer;
+  font-weight: bold;
 }

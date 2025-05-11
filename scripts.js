@@ -118,7 +118,13 @@ function updatePanel(type, { name, avgStr, numSchools }) {
   document.getElementById(`${type}-name`).textContent = name;
   document.getElementById(`${type}-avg-str`).textContent = avgStr;
   document.getElementById(`${type}-num-schools`).textContent = numSchools;
+
+  if (pane) {
+    pane.classList.toggle('highlighted', shouldHighlight);
+  }
+
 }
+
 
 
 
@@ -219,7 +225,7 @@ STRmap.on('load', () => {
     source: 'state-boundaries',
     paint: {
       'fill-color': '#F23CA6',
-      'fill-opacity': 0.5
+      'fill-opacity': 0.3
     }
   });
 
@@ -453,11 +459,7 @@ STRmap.on('load', () => {
 
     if (!features.length) {
       // Reset to initial view
-      STRmap.flyTo({
-        center: initialView.center,
-        zoom: initialView.zoom,
-        bearing: initialView.bearing
-      });
+      resetMapView();
 
       // Reset all layers
       STRmap.setLayoutProperty('county-fill', 'visibility', 'none');
