@@ -300,8 +300,17 @@ STRmap.on('load', () => {
         4, 1.5,   // smaller at low zoom
         12, 4     // smaller at high zoom
       ],
-      'circle-color': '#5E57FF',
-      'circle-stroke-width': 1,
+      'circle-color': [
+        'interpolate', ['linear'], ['get', 'str'],
+        5, '#00BFAE',     // vibrant teal
+        10, '#00A3E0',    // strong sky blue
+        15, '#0072CE',    // bold blue
+        20, '#8B5CF6',    // vibrant purple
+        25, '#D946EF',    // hot pink
+        35, '#FF3B3F'     // bright red
+      ]
+      ,
+      'circle-stroke-width': 0.2,
       'circle-stroke-color': '#ffffff',
       'circle-opacity': 0.8
     }

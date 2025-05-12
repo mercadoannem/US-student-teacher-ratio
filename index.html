@@ -37,20 +37,37 @@
       <div class="panel" id="state-stats-pane">
         <h3>State Summary</h3>
         <p><strong>State:</strong> <span id="state-name">—</span></p>
-        <p><strong>Avg. STR:</strong> <span id="state-avg-str">—</span></p>
+        <p><strong>Avg. STR:</strong>
+          <span id="state-avg-str" class="str-highlight"><span class="str-value">—</span></span>
+        </p>
+        
         <p><strong>Schools:</strong> <span id="state-num-schools">—</span></p>
       </div>
 
       <div class="panel" id="county-stats-pane">
         <h3>County Summary</h3>
         <p><strong>County:</strong> <span id="county-name">—</span></p>
-        <p><strong>Avg. STR:</strong> <span id="county-avg-str">—</span></p>
+        <p><strong>Avg. STR:</strong>
+          <span id="county-avg-str" class="str-highlight"><span class="str-value">—</span></span>
+        </p>
         <p><strong>Schools:</strong> <span id="county-num-schools">—</span></p>
       </div>
 
       <div style="text-align:center; margin-bottom: 10px; margin-top: 0px;">
         <button id="reset-view-btn" class="action-btn">Reset View</button>
       </div>
+
+      <div id="map-legend" class="legend">
+        <h4>Students per Teacher</h4>
+        <div class="legend-item"><span class="legend-color" style="background-color: #2DC4B2;"></span> ≤ 5:1</div>
+        <div class="legend-item"><span class="legend-color" style="background-color: #3BB3C3;"></span> ≤ 10:1</div>
+        <div class="legend-item"><span class="legend-color" style="background-color: #669EC4;"></span> ≤ 15:1</div>
+        <div class="legend-item"><span class="legend-color" style="background-color: #8B88B6;"></span> ≤ 20:1</div>
+        <div class="legend-item"><span class="legend-color" style="background-color: #A2719B;"></span> ≤ 25:1</div>
+        <div class="legend-item"><span class="legend-color" style="background-color: #AA5E79;"></span> ≤ 35:1</div>
+      </div>
+      
+      
 
     </div>
 
